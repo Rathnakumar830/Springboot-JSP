@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import com.expense.app.entities.DailyDetails;
 import com.expense.app.repos.DailyDetailRepository;
 import com.expense.app.services.MyServices;
+import com.expense.app.services.FamilyMemberService;
 
 @Controller
 public class MainAppController {
@@ -21,8 +22,17 @@ public class MainAppController {
 	@Autowired
 	DailyDetailRepository repo;
 	
+	@Autowired
+	FamilyMemberService familyMemberService;
+	
 	@GetMapping("/")
-	public String homepage() {
+	public String homepage(Model model) {
+		// Initialize family members if none exist and redirect to new system
+		familyMemberService.initializeDefaultFamilyMembers();
+		
+		// Add family members to model for the form
+		model.addAttribute("familyMembers", familyMemberService.getAllActiveFamilyMembers());
+		
 		return "Home";
 	}
 	
@@ -33,7 +43,11 @@ public class MainAppController {
 		return "Report";
 	}
 	
-	
+	// Redirect to new expense dashboard
+	@GetMapping("/dashboard")
+	public String redirectToDashboard() {
+		return "redirect:/expenses/dashboard";
+	}
 
 	@PostMapping("/login")
 	public String loginPage(HttpServletRequest req, HttpServletResponse res) {
